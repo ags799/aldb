@@ -1,6 +1,1 @@
-*.class
-*.jar
-!lib/*.jar
-lib/aldb.jar
-
-class
+build

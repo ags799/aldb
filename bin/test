@@ -11,4 +11,6 @@ for jar in $(ls $scriptDir/../lib); do
   CLASSPATH=$CLASSPATH:$scriptDir/../lib/$jar
 done
 
-java -jar $scriptDir/../build/aldb.jar $@
+CLASSPATH=$CLASSPATH:$scriptDir/../build/classes
+
+java aldb.TestRunner $@

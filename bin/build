@@ -11,26 +11,20 @@ oldDir=$(pwd)
 
 cd $scriptDir/..
 
-if [ -e lib/aldb.jar ]; then
-  rm -r lib/aldb.jar
+if [ -e build ]; then
+  rm -r build
 fi
+mkdir build
+mkdir build/classes
 
-CLASSPATH=$(pwd)/class
+CLASSPATH=$(pwd)/build/classes
 for jar in $(ls lib); do
   CLASSPATH=$CLASSPATH:$(pwd)/lib/$jar
 done
 
-if [ -e class ]; then
-  rm -r class
-fi
-mkdir class
+find src/* -name "*.java" -print | xargs javac -g -d build/classes
 
-find . -name "*.java" -print | xargs javac -d class
-
-cd class
-jar cfm ../lib/aldb.jar ../Manifest.txt *
-
-cd ..
-rm -r class
+cd build/classes
+jar cfm ../aldb.jar ../../Manifest.txt *
 
 cd $oldDir
