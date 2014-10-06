@@ -1,1 +1,2 @@
 Main-Class: aldb.Main
+Class-Path: lib/alloy4.2.jar

@@ -7,8 +7,4 @@ if [ -z "$scriptDir" ]; then
 'Error, script unable to locate its directory. Exiting...\n'
 fi
 
-for jar in $(ls $scriptDir/../lib); do
-  CLASSPATH=$CLASSPATH:$scriptDir/../lib/$jar
-done
-
 java -jar $scriptDir/../build/aldb.jar $@
