@@ -11,7 +11,7 @@ import org.junit.*;
  */
 public class MainTest {
   @Test
-  public void testAdd() {
+  public final void testAdd() {
     assertEquals(3, add(1, 2));
   }
 }
