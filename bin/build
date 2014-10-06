@@ -1,0 +1,36 @@
+#!/bin/bash
+
+scriptDir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+if [ -z "$scriptDir" ]; then
+  printf \
+'Error, script unable to locate its directory. Exiting...\n'
+fi
+
+oldDir=$(pwd)
+
+cd $scriptDir/..
+
+if [ -e lib/aldb.jar ]; then
+  rm -r lib/aldb.jar
+fi
+
+CLASSPATH=$(pwd)/class
+for jar in $(ls lib); do
+  CLASSPATH=$CLASSPATH:$(pwd)/lib/$jar
+done
+
+if [ -e class ]; then
+  rm -r class
+fi
+mkdir class
+
+find . -name "*.java" -print | xargs javac -d class
+
+cd class
+jar cfm ../lib/aldb.jar ../Manifest.txt *
+
+cd ..
+rm -r class
+
+cd $oldDir
