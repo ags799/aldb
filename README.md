@@ -1,8 +1,7 @@
 aldb - The Alloy DeBugger
 =========================
 
-aldb allows its users to easily gain an understanding
-of why their Alloy models don't work.
+`aldb` allows its users to easily understand why their Alloy models don't work.
 
 Development
 -----------
@@ -21,6 +20,9 @@ Use `bin/aldb` to run the program.
 Use `bin/test` to run the main test runner. Note that it will not
 necessarily run all tests -- it only runs the tests it has been supplied
 with.
+
+#### Debugging
+Use `bin/debug` to launch `jdb` on `aldb.Main`.
 
 #### Style
 This project approximately follows the Sun code conventions. Its style
