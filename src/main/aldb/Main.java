@@ -5,7 +5,8 @@ import edu.mit.csail.sdg.alloy4compiler.ast.*;
 import edu.mit.csail.sdg.alloy4compiler.parser.CompUtil;
 import org.apache.commons.cli.*;
 
-public final class Main {
+/** As it stands, this class is for debugging purposes only. */
+final class Main {
   public static void main(final String[] args) throws Err {
     Options options = new Options();
     Option alloyModulePath = OptionBuilder.withArgName("path")
@@ -30,27 +31,22 @@ public final class Main {
     StringBuilder output = new StringBuilder();
     output.append("Module Name\n" + world.getModelName() + "\n\n");
     output.append("Assertions\n" + world.getAllAssertions() + "\n\n");
-    output.append("Commands\n" + commandsToString(world.getAllCommands()) +
-        "\n\n");
+    output.append("Commands\n" + commandsToString(world.getAllCommands())
+        + "\n\n");
     output.append("Facts\n" + world.getAllFacts() + "\n\n");
     output.append("Func\n" + world.getAllFunc() + "\n\n");
     output.append("Sigs\n" + world.getAllSigs() + "\n\n");
     System.out.println(output);
-    System.out.println("Hello world!");
   }
 
-  private static String commandsToString(Iterable<Command> commands) {
+  private static String commandsToString(final Iterable<Command> commands) {
     StringBuilder sb = new StringBuilder();
     String prefix = "";
     for (Command command : commands) {
-      sb.append(prefix + command.toString());
+      sb.append(prefix + command.formula.toString());
       prefix = "\n";
     }
     return sb.toString();
-  }
-
-  public static int add(final int a, final int b) {
-    return a + b;
   }
 
   private Main() {}
