@@ -1,2 +1,2 @@
 Main-Class: aldb.Main
-Class-Path: lib/alloy4.2.jar
+Class-Path: ../lib/alloy4.2.jar ../lib/commons-cli-1.2.jar
