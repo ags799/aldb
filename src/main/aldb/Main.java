@@ -1,14 +1,32 @@
 package aldb;
 
+import java.io.IOException;
+
+import asg.cliche.ShellFactory;
+
 import edu.mit.csail.sdg.alloy4.Err;
 import edu.mit.csail.sdg.alloy4compiler.ast.*;
-import edu.mit.csail.sdg.alloy4compiler.parser.CompUtil;
+
 import org.apache.commons.cli.*;
 
-/** As it stands, this class is for debugging purposes only. */
 final class Main {
-  public static void main(final String[] args) throws Err {
+  public static void main(final String[] args) throws Err, IOException {
+    CommandLine commandLineArgs = getCommandLineArgs(args);
+    // TODO use Java Path for the -i argument
+    ShellFactory.createConsoleShell(
+        ">", "aldb v0.0.0", new Cli(commandLineArgs.getOptionValue("i")))
+        .commandLoop();
+  }
+
+  /**
+   * Returns command line arguments.
+   * They are:
+   *   -i path Path to Alloy module file.
+   */
+  private static CommandLine getCommandLineArgs(final String[] args)
+      throws Err {
     Options options = new Options();
+    // -i <path> Path to Alloy module file.
     Option alloyModulePath = OptionBuilder.withArgName("path")
                                           .hasArg()
                                           .isRequired()
@@ -18,27 +36,37 @@ final class Main {
                                           .create('i');
     options.addOption(alloyModulePath);
     CommandLineParser parser = new GnuParser();
-    CommandLine cmd = null;
+    CommandLine commandLineArgs = null;
     try {
-      cmd = parser.parse(options, args);
+      commandLineArgs = parser.parse(options, args);
     } catch (ParseException e) {
       HelpFormatter formatter = new HelpFormatter();
       formatter.printHelp("aldb", options);
       System.exit(1);
     }
-    Module world = CompUtil.parseEverything_fromFile(
-        null, null, cmd.getOptionValue("i"));
-    StringBuilder output = new StringBuilder();
-    output.append("Module Name\n" + world.getModelName() + "\n\n");
-    output.append("Assertions\n" + world.getAllAssertions() + "\n\n");
-    output.append("Commands\n" + commandsToString(world.getAllCommands())
-        + "\n\n");
-    output.append("Facts\n" + world.getAllFacts() + "\n\n");
-    output.append("Func\n" + world.getAllFunc() + "\n\n");
-    output.append("Sigs\n" + world.getAllSigs() + "\n\n");
-    System.out.println(output);
+    return commandLineArgs;
   }
 
+  /**
+   * Returns String description of module.
+   * Vestigial.
+   */
+  private static String moduleToString(final Module module) {
+    StringBuilder output = new StringBuilder();
+    output.append("Module Name\n" + module.getModelName() + "\n\n");
+    output.append("Assertions\n" + module.getAllAssertions() + "\n\n");
+    output.append("Commands\n" + commandsToString(module.getAllCommands())
+        + "\n\n");
+    output.append("Facts\n" + module.getAllFacts() + "\n\n");
+    output.append("Func\n" + module.getAllFunc() + "\n\n");
+    output.append("Sigs\n" + module.getAllSigs() + "\n\n");
+    return output.toString();
+  }
+
+  /**
+   * Returns String description of commands.
+   * Vestigial.
+   */
   private static String commandsToString(final Iterable<Command> commands) {
     StringBuilder sb = new StringBuilder();
     String prefix = "";
