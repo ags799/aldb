@@ -18,6 +18,10 @@ public final class TestRunner {
     for (Failure failure : result.getFailures()) {
       System.out.println(failure.toString());
     }
+    result = JUnitCore.runClasses(CliCommandIndexTests.class);
+    for (Failure failure : result.getFailures()) {
+      System.out.println(failure.toString());
+    }
     // TODO add more tests
   }
 
