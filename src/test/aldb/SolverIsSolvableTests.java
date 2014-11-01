@@ -12,7 +12,7 @@ import edu.mit.csail.sdg.alloy4.*;
 import edu.mit.csail.sdg.alloy4compiler.ast.*;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.*;
 
-public class IsSolvableTests {
+public class SolverIsSolvableTests {
   @Test
   public final void testShouldReturnTrueForValidModel() throws Err {
     PrimSig a = new PrimSig("A");
