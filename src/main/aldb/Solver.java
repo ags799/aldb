@@ -20,6 +20,26 @@ final class Solver {
         null, module.getAllReachableSigs(), command, options);
   }
 
+  /** Returns true if the provided solution fits the provided module.
+   *
+   * Does not work!
+   */
+  /*static boolean isSolution(final A4Solution solution,
+                            final Path modulePath,
+                            final Module module,
+                            final Command command) throws Err {
+    solution.solved = false;
+    A4Options options = new A4Options();
+    options.originalFilename = modulePath.toString();
+    options.solver = A4Options.SatSolver.SAT4J;
+    return TranslateAlloyToKodkod.execute_command(
+        null,
+        module.getAllReachableSigs(),
+        command,
+        options,
+        solution).satisfiable();
+  }*/
+
   /**
    * Returns true if the sigs and command are solvable.
    * Vestigial.
