@@ -42,16 +42,9 @@ public class Cli {
     return Parser.evaluate(module, solution, expression);
   }
 
-  /** Reload the existing Alloy module. */
-  @asg.cliche.Command
-  public final String reload() throws Err {
-    this.module = Parser.getModuleFromPath(modulePath);
-    return "";
-  }
-
   /** Load an Alloy module at the specified path. */
   @asg.cliche.Command
-  public final String reload(final String pathString) throws Err {
+  public final String file(final String pathString) throws Err {
     Path tempModulePath;
     Module tempModule;
     try {
