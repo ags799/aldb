@@ -18,25 +18,27 @@ public class Cli {
   private Path modulePath;
   private Module module;
   Integer commandIndex;
+  private A4Solution solution;
 
   Cli(final Path modulePath) throws Err {
     this.modulePath = modulePath;
-    // We expect the module to be compilable. aldb is not meant to help
-    // debug compilation issues.
+    // TODO handle bad path, bad module
     this.module = Parser.getModuleFromPath(modulePath);
+
     if (this.module.getAllCommands().size() < 1) {
       this.commandIndex = null;
+      this.solution = null;
     } else {
       this.commandIndex = 0;
+      this.solution = Solver.getSolution(
+          this.modulePath, this.module,
+          this.module.getAllCommands().get(this.commandIndex));
     }
   }
 
-  /** Evaluate an expression on the first solution of this.module. */
+  /** Evaluate an expression. */
   @asg.cliche.Command
   public final String print(final String expression) throws Err {
-    Command command = module.getAllCommands().get(this.commandIndex);
-    // TODO allow user to select a solution
-    A4Solution solution = Solver.getSolution(this.modulePath, module, command);
     return Parser.evaluate(module, solution, expression);
   }
 
@@ -66,6 +68,32 @@ public class Cli {
     return "";
   }
 
+  /** Print currently selected Solution. */
+  @asg.cliche.Command
+  public final String printSolution() throws Err {
+    if (solution == null) {
+      return "";
+    } else {
+      return solution.toString();
+    }
+  }
+
+  /** Get the next Solution, if there is one. */
+  @asg.cliche.Command
+  public final String nextSolution() throws Err {
+    if (solution == null) {
+      return "There are no solutions.";
+    } else if (solution.next() == solution) {
+      solution = Solver.getSolution(
+          modulePath, module,
+          module.getAllCommands().get(commandIndex));
+      return "There are no more solutions. Using first solution.";
+    } else {
+      solution = solution.next();
+      return "";
+    }
+  }
+
   /** Show selected command. */
   @asg.cliche.Command
   public final String printCommand() throws Err {
@@ -78,7 +106,7 @@ public class Cli {
     }
   }
 
-  /** Set command. */
+  /** Set command by index. */
   @asg.cliche.Command
   public final String setCommand(final int commandIndex) throws Err {
     if (commandIndex >= this.module.getAllCommands().size()
