@@ -1,6 +1,8 @@
 package aldb;
 
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.InvalidPathException;
 
 import asg.*;
 
@@ -38,16 +40,41 @@ public class Cli {
     return Parser.evaluate(module, solution, expression);
   }
 
+  /** Reload the existing Alloy module. */
+  @asg.cliche.Command
+  public final String reload() throws Err {
+    this.module = Parser.getModuleFromPath(modulePath);
+    return "";
+  }
+
+  /** Load an Alloy module at the specified path. */
+  @asg.cliche.Command
+  public final String reload(final String pathString) throws Err {
+    Path tempModulePath;
+    Module tempModule;
+    try {
+      tempModulePath = Paths.get(pathString);
+      tempModule = Parser.getModuleFromPath(tempModulePath);
+    } catch (InvalidPathException e) {
+      return "Invalid path.";
+    } catch (Err e) {
+      return "Alloy module does not compile. Here's the error message:\n"
+           + e.toString();
+    }
+    this.modulePath = tempModulePath;
+    this.module = tempModule;
+    return "";
+  }
+
   /** Show selected command. */
   @asg.cliche.Command
   public final String printCommand() throws Err {
     if (this.commandIndex == null) {
-      return "No command index set.\n";
+      return "No command index set.";
     } else {
       return this.commandIndex
            + ": "
-           + this.module.getAllCommands().get(this.commandIndex)
-           + '\n';
+           + this.module.getAllCommands().get(this.commandIndex);
     }
   }
 
@@ -56,7 +83,7 @@ public class Cli {
   public final String setCommand(final int commandIndex) throws Err {
     if (commandIndex >= this.module.getAllCommands().size()
         || commandIndex < 0) {
-      return "Index out of range.\n";
+      return "Index out of range.";
     } else {
       this.commandIndex = commandIndex;
       return "New command is " + printCommand();
@@ -69,8 +96,10 @@ public class Cli {
     // TODO what if there are no commands
     StringBuilder sb = new StringBuilder();
     int i = 0;
+    String prefix = "";
     for (Command command : module.getAllCommands()) {
-      sb.append(i + ": " + command + '\n');
+      sb.append(prefix + i + ": " + command);
+      prefix = "\n";
       i += 1;
     }
     return sb.toString();
