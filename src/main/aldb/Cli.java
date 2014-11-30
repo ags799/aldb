@@ -133,7 +133,6 @@ public class Cli {
 		@asg.cliche.Command
 		public final String breakpoint(final int lineNumber) {
 			Integer ln = new Integer(lineNumber);
-			Expr match, newFormula; 
 			Command newCommand, currentCommand = module.getAllCommands().get(commandIndex);
 		
 			if(this.breakLines.contains(ln)){
@@ -145,12 +144,6 @@ public class Cli {
 			if(ln == 1){
 				return "Error: breakpoints not allowed at line 1.";
 			}
-		
-			SafeList<Sig> allSigs = module.getAllSigs();
-			SafeList<Func> allFuncs = module.getAllFunc();
-			ConstList<Pair<String,Expr>> allAsserts = module.getAllAssertions();
-			SafeList<Pair<String,Expr>> allFacts = module.getAllFacts();
-			ConstList<Command> allCommands = module.getAllCommands();
 		
 			/* Sigs, Asserts, Facts are Exprs, Funcs and Commands are Browsables.
 			 * Okay, so here's an idea. We maintain a list of breakpoints and just nullify the 
@@ -174,62 +167,15 @@ public class Cli {
 			 */
 		
 			breakpoints.add(new Breakpoint(lineNumber, module));
-		
-			System.out.println("Sigs:");
-			for(Sig sig: allSigs){
-				if(ln >= sig.pos.y && ln <= sig.pos.y2){
-					System.out.println("Found the spot- it's in sig " + sig.label);
-					match = sig;
-				}
-				System.out.println(sig.label);
-			}
-		
-			System.out.println("Funcs:");
-			for(Func func: allFuncs){
-				if(ln >= func.pos.y && ln <= func.pos.y2){
-					System.out.println("Found the spot- it's in func " + func.label);
-					match = func.getBody();
-				}
-				System.out.println(func.label);
-			}
-		
-			System.out.println("Asserts:");
-			for(Pair<String,Expr> pair: allAsserts){
-				if(ln >= pair.b.pos.y && ln <= pair.b.pos.y2){
-					System.out.println("Found the spot- it's in Assert " + pair.a);
-					match = pair.b;
-				}
-				System.out.println(pair.a);
-			}
-		
-			System.out.println("Facts:");
-			for(Pair<String,Expr> pair: allFacts){
-				if(ln >= pair.b.pos.y && ln <= pair.b.pos.y2){
-					System.out.println("Found the spot- it's in Fact " + pair.a);
-					match = pair.b;
-				}
-				System.out.println(pair.a);
-			}
-		
-			System.out.println("Commands:");
-			for(Command c: allCommands){
-				if(ln >= c.pos.y && ln <= c.pos.y2){
-					System.out.println("Found the spot- it's in Command " + c.label);
-					match = c.formula;
-				}
-				System.out.println(c.label + " has formula");
-				System.out.println(c.formula.toString());
-			}
-		
+			
 			/*Okay, we have the Expr that represents what we want to remove.
-			Now we make a new formula, without that Expr and change the command to
+			Now we make a new formula without that Expr and change the command to
 			that.
 			We'll do that at runtime rather than here. All we need is a way to make a
 			new formula.
 			*/
 		
-		
-			return null;
+			return "Added breakpoint at line " + lineNumber;
 		}
 	
 		/** Remove all breakpoints.*/
