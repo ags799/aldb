@@ -146,78 +146,32 @@ public class Cli {
 				return "Error: breakpoints not allowed at line 1.";
 			}
 		
-		
-		
 			SafeList<Sig> allSigs = module.getAllSigs();
 			SafeList<Func> allFuncs = module.getAllFunc();
 			ConstList<Pair<String,Expr>> allAsserts = module.getAllAssertions();
 			SafeList<Pair<String,Expr>> allFacts = module.getAllFacts();
 			ConstList<Command> allCommands = module.getAllCommands();
 		
-			/*We need to define behavior for each of these cases. What happens in the 
-			 * case of a breakpoint in each kind of statement? Of course, all of this 
-			 * is academic if we can't affect the tree. Equally so if we can't access
-			 * the expression itself. 
-			 * Sigs, Asserts, Facts are Exprs, Funcs and Commands are Browsables.
-			 * As to that issue: the A4Solution has a map from Exprs to Expressions
-			 * (the Kodkod expression). We can get it with solution.a2k(). 
-			 * For Sigs: solution.a2k(sig) returns an Expression.
-			 * That also works for Exprs- but there's actually a todo in the code for
-			 * that method, so it may not work the best.
-			 * Commands are the sticking point. We may be able to do it with 
-			 * solution.s2k(command.label), s2k maps strings to Expressions.
-			 * Issue: these mehtods are not public. They're package-scope.
-			 * Resolved through decision to change the alloy code. 
-			 * Those methods are now public.
-			 * Issue: we have access. Now, can we modify in a meaningful way?
-			 * May be resolved through changing the code. 
-			 * solution.solve(A4Reporter, Command, Simplifier, boolean tryBookExamples) 
-			 * seems to be our best bet. We need to alter the formulas, set solution.solved
-			 * to false, and then run solve to get a new A4Solution. 
-			 * Seem Andrew already figured that much out in Solver. We can run 
-			 * TranslateAlloyToKodkod.execute_command(null, sigs, cmd, options) to solve
-			 * a module. However, execute_command only takes in the sigs- what happened to
-			 * everything else? There's a thing that finds the scope of it all. In this
-			 * context, however, "scope" seems to only mean the bitwidth, min/max values,
-			 * and how many things it's run for. Kind of seems to be our best bet, though.
+			/* Sigs, Asserts, Facts are Exprs, Funcs and Commands are Browsables.
 			 * Okay, so here's an idea. We maintain a list of breakpoints and just nullify the 
-			 * appropriate clauses at run time. ...Which is kind of what I've been meant to be
-			 * doing all along. Crap. So we're back to nullifying clauses. Except we're not,
+			 * appropriate clauses at run time. So we're back to nullifying clauses. Except we're not,
 			 * because the solver just takes a list of sigs and a command. We need to kill them
-			 * here. Nothing but sigs seem to be touched, though. 
-			 * The Command has the formula! In the form of an expression. And we still have
-			 * nothing on tracking down individual clauses. We can get the enclosing thing, but
-			 * not the clause itself. 
-			 * Okay. We're now doing sig-level granularity. I'm thinking a map from things to 
-			 * whether or not to use them. So now we track the map from the sig or whatever to
-			 * the clause, and find that (somehow) in the formula in the command and then make a new
-			 * command for execution. I don't think removing sigs helps at all, it just breaks things
-			 * utterly. We should still let the user do it, of course. But in that case we just 
-			 * remove it from the list of sigs upon execution. Removing breakpoints now consists of 
-			 * re-computing the original formula and re-adding the other breakpoints.
-			 * Next thing, then, is to find a way to match a thing in the formula, then remove that thing.
-			 * Ooh, a handy thing: command.change(Expr newFormula) returns a new Command with the new
-			 * formula. We just have to find a way to modify the formula. Or, better, make a new formula.
-			 * We can ExprVar.make(Pos pos, String label, Type type) a thing to match against using
-			 * hasVar(ExprVar), maybe.
-			 * I'm an idiot. The a2k method gives you an Expression, not an Expr. Actually going to blame 
-			 * the code on this. BUT it doesn't actually matter- we don't need it anymore.
-			 * We just need a way to make a formula and a way to find a new formula. We'll change the 
-			 * command at runtime. 
-			 * At runtime: iterate over breakpoints or formula elements, add or remove as necessary to
-			 * the selected command's formula. Probably easier to add. We can get a list of subnodes and
-			 * iterate through them.  
-			 * Alternately, we could just create a new A4Solution altogether by making
-			 * the constructor public. 
-			 * A4Solution(String originalCommand, int bitwidth, int maxseq, Set<String> stringAtoms, 
-			 * 	Collection<String> atoms, final A4Reporter rep, A4Options opt, int expected);
-			 * The first three arguments of that are preserved, as is opt, but the others
-			 * are more difficult to reconstruct. I think the first approach may be more 
-			 * viable. 
-			 * Note: preds are both commands and funcs. 
+			 * here. 
+			 * The Command has the formula in the form of an Expr. 
+			 * We're doing sig-level granularity. If there's a breakpoint that has that Expr, we 
+			 * don't include it when assembling a new command for execution. 
+			 * I don't think removing sigs helps at all, it just breaks things
+			 * utterly. We should still let the user do it, of course. 
+			 * command.change(Expr newFormula) returns a new Command with the new formula.
+			 * We just have to find a way to make a new formula. For testing purposes, we can
+			 * ExprVar.make(Pos pos, String label, Type type) an ExprVar to match against using
+			 * hasvar(ExprVar). We need to find out what's included- I belive it's funcs, asserts,
+			 * and facts. 
+			 * At runtime: iterate over those Exprs, iterate over breakpoints. For each Expr that 
+			 * isn't in a Breakpoint, we add it to a new formula.
+			 * Note: preds are both commands and funcs. However, adding something twice shouldn't be
+			 * an issue. 
 			 */
-		
-			//module.showAsTree(null);
 		
 			breakpoints.add(new Breakpoint(lineNumber, module));
 		
@@ -304,25 +258,5 @@ public class Cli {
 			}else{
 				return "Error removing breakpoint.";
 			}
-		
-			/* Okay. We can *show* the module as a tree- I just need access to the tree itself, so
-				that I can find the appropriate clause. I'll poke at it a bunch.
-				The other thing we need is getting the stuff from the line number. Let's look into that.
-				Okay, here's what I've found on that: 
-				Relevant Module methods:
-					SafeList<Sig> getAllSigs();
-					SafeList<Func> getAllFunc();
-					ConstList<Pair<String,Expr>> getAllAssertions();
-					SafeList<Pair<String,Expr>> getAllFacts();
-					ConstList<Command> getAllCommands();
-				Sigs, Funcs, Facts, Assertions, and Commands all have a Pos member that contains their
-				start and endline in the file. That's the pos.y and pos.y2 member in everything except
-				Sigs. Those have a list of Attr objects that have the pos. Expr objects (like facts 
-				and assertions) have a "closingBracket" Pos member as well, not sure what's up with it.
-				Let's do some experimentation.
-				*/
-		
-		
-		
 		}
 }
