@@ -20,8 +20,10 @@ public class Cli {
   private Path modulePath;
   private Module module;
   Integer commandIndex;
+	private Command currenCommand;
   private A4Solution solution;
 	private ArrayList<Integer> breakLines;
+	private ArrayList<Breakpoint> breakpoints = new ArrayList<Breakpoint>();
 
   Cli(final Path modulePath) throws Err {
     this.modulePath = modulePath;
@@ -133,7 +135,7 @@ public class Cli {
 		@asg.cliche.Command
 		public final String breakpoint(final int lineNumber) {
 			Integer ln = new Integer(lineNumber);
-			Command newCommand, currentCommand = module.getAllCommands().get(commandIndex);
+			Command newCommand;
 		
 			if(this.breakLines.contains(ln)){
 				return "There is already a breakpoint at that line.";
@@ -167,6 +169,9 @@ public class Cli {
 			 */
 		
 			breakpoints.add(new Breakpoint(lineNumber, module));
+			newCommand = currentCommand.change(CommandBuilder.buildCommand(module, breakpoints, allCommands.get(commandIndex)));
+			this.solution = Solver.getSolution(modulePath, module, newCommand);
+		
 			
 			/*Okay, we have the Expr that represents what we want to remove.
 			Now we make a new formula without that Expr and change the command to
@@ -181,6 +186,8 @@ public class Cli {
 		/** Remove all breakpoints.*/
 		@asg.cliche.Command
 		public final String removeAllBreakpoints(){
+			this.currentCommand = module.getAllCommands().get(this.commandIndex);
+			this.solution = Solver.getSolution(modulePath, module, currentCommand);
 			this.breakLines.clear();
 			this.breakpoints.clear();
 			return "All breakpoints removed.";
