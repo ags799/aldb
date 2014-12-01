@@ -45,7 +45,7 @@ public class Breakpoint {
 		
 		for(Sig sig: allSigs){
 			if(line >= sig.pos.y && line <= sig.pos.y2){
-				System.out.println("Found the spot- it's in sig " + sig.label);
+				//System.out.println("Found the spot- it's in sig " + sig.label);
 				this.type = "sig";
 				this.clause = sig;
 				return;
@@ -54,7 +54,7 @@ public class Breakpoint {
 		
 		for(Func func: allFuncs){
 			if(line >= func.pos.y && line <= func.pos.y2){
-				System.out.println("Found the spot- it's in func " + func.label);
+				//System.out.println("Found the spot- it's in func " + func.label);
 				this.type = "func";
 				this.clause = func.getBody();
 				return;
@@ -63,7 +63,7 @@ public class Breakpoint {
 		
 		for(Pair<String,Expr> pair: allAsserts){
 			if(line >= pair.b.pos.y && line <= pair.b.pos.y2){
-				System.out.println("Found the spot- it's in Assert " + pair.a);
+				//System.out.println("Found the spot- it's in Assert " + pair.a);
 				this.type = "assert";
 				this.clause = pair.b;
 				return;
@@ -72,7 +72,7 @@ public class Breakpoint {
 		
 		for(Pair<String,Expr> pair: allFacts){
 			if(line >= pair.b.pos.y && line <= pair.b.pos.y2){
-				System.out.println("Found the spot- it's in Fact " + pair.a);
+				//System.out.println("Found the spot- it's in Fact " + pair.a);
 				this.type = "fact";
 				this.clause = pair.b;
 				return;
@@ -81,7 +81,7 @@ public class Breakpoint {
 		
 		for(Command c: allCommands){
 			if(line >= c.pos.y && line <= c.pos.y2){
-				System.out.println("Found the spot- it's in Command " + c.label);
+				//System.out.println("Found the spot- it's in Command " + c.label);
 				this.type = "command";
 				this.clause = c.formula;
 				return;

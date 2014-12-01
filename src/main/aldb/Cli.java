@@ -20,7 +20,7 @@ public class Cli {
   private Path modulePath;
   private Module module;
   Integer commandIndex;
-	private Command currenCommand;
+	private Command currentCommand;
   private A4Solution solution;
 	private ArrayList<Integer> breakLines;
 	private ArrayList<Breakpoint> breakpoints = new ArrayList<Breakpoint>();
@@ -29,6 +29,7 @@ public class Cli {
     this.modulePath = modulePath;
     // TODO handle bad path, bad module
     this.module = Parser.getModuleFromPath(modulePath);
+    this.breakLines = new ArrayList<Integer>();
 
     if (this.module.getAllCommands().size() < 1) {
       this.commandIndex = null;
@@ -39,6 +40,7 @@ public class Cli {
           this.modulePath, this.module,
           this.module.getAllCommands().get(this.commandIndex));
     }
+    this.currentCommand = this.module.getAllCommands().get(commandIndex);
   }
 
   /** Evaluate an expression. */
@@ -133,7 +135,7 @@ public class Cli {
 	
 	/** Set a breakpoint at the specified line number. */
 		@asg.cliche.Command
-		public final String breakpoint(final int lineNumber) {
+		public final String breakpoint(final int lineNumber) throws Err {
 			Integer ln = new Integer(lineNumber);
 			Command newCommand;
 		
@@ -169,7 +171,7 @@ public class Cli {
 			 */
 		
 			breakpoints.add(new Breakpoint(lineNumber, module));
-			newCommand = currentCommand.change(CommandBuilder.buildCommand(module, breakpoints, allCommands.get(commandIndex)));
+			newCommand = currentCommand.change(CommandBuilder.buildCommand(module, breakpoints, module.getAllCommands().get(commandIndex)));
 			this.solution = Solver.getSolution(modulePath, module, newCommand);
 		
 			
@@ -185,7 +187,7 @@ public class Cli {
 	
 		/** Remove all breakpoints.*/
 		@asg.cliche.Command
-		public final String removeAllBreakpoints(){
+		public final String removeAllBreakpoints() throws Err {
 			this.currentCommand = module.getAllCommands().get(this.commandIndex);
 			this.solution = Solver.getSolution(modulePath, module, currentCommand);
 			this.breakLines.clear();
